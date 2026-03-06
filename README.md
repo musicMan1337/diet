@@ -20,16 +20,16 @@ Plans rotate through 3 slots: `last.js` → `current.js` → `next.js`. Each new
 ./serve.sh
 ```
 
-Opens the viewer at `http://localhost:8079/plans/`.
+Opens the viewer at `http://localhost:8079/docs/`.
 
 ### Deploy to GitHub Pages
 
-Just push to `main`. Configure GitHub Pages to serve from the `main` branch, `/plans` folder.
+Just push to `main`. Configure GitHub Pages to serve from the `main` branch, `/docs` folder.
 
 ## Project Structure
 
 ```
-plans/
+docs/
   index.html    - Viewer app (loads plans via script tags)
   current.js    - This week's plan
   last.js       - Previous week

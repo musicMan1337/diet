@@ -62,7 +62,7 @@ Help plan meals for each week, including generating grocery lists split across 2
 
 ## Repo Structure
 
-- `plans/` - Meal plans and viewer app:
+- `docs/` - Meal plans and viewer app (served by GitHub Pages):
   - `index.html` - Static viewer app (loads .js files via script tags)
   - `current.js` - This week's plan
   - `last.js` - Previous week's plan
@@ -94,11 +94,11 @@ Help plan meals for each week, including generating grocery lists split across 2
 
 Plans use a 3-slot rotation: `last.js`, `current.js`, `next.js`. All 3 files always exist.
 
-**When asked to generate a meal plan**, check the `weekOf` date in `plans/next.js`:
+**When asked to generate a meal plan**, check the `weekOf` date in `docs/next.js`:
 - If `weekOf` is **before today's date**, the plans are stale and need rotation:
-  1. Read `plans/current.js` and write its full content into `plans/last.js` (replacing the entire file)
-  2. Read `plans/next.js` and write its full content into `plans/current.js` (replacing the entire file)
-  3. Generate the new plan as `plans/next.js`
+  1. Read `docs/current.js` and write its full content into `docs/last.js` (replacing the entire file)
+  2. Read `docs/next.js` and write its full content into `docs/current.js` (replacing the entire file)
+  3. Generate the new plan as `docs/next.js`
   Each file always uses its own variable name (`var PLAN_LAST`, `var PLAN_CURRENT`, `var PLAN_NEXT`), so after writing the data, update the variable name on line 1 to match the target file.
 - If `weekOf` is **today or later**, `next.js` is still upcoming — just regenerate it in place if asked.
 
@@ -147,5 +147,5 @@ Vegetable entries use: `{ "item": "name", "servings": 1, "cooking": "roasted", "
 ### Viewer App
 
 - `./serve.sh` - Starts a local server to view plans
-- GitHub Pages serves from `main` branch, `plans/` directory
+- GitHub Pages serves from `main` branch, `docs/` directory
 - No build step needed — everything is static
