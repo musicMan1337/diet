@@ -96,9 +96,10 @@ Plans use a 3-slot rotation: `last.js`, `current.js`, `next.js`. All 3 files alw
 
 **When asked to generate a meal plan**, check the `weekOf` date in `plans/next.js`:
 - If `weekOf` is **before today's date**, the plans are stale and need rotation:
-  1. Copy `plans/current.js` → `plans/last.js` (change `var PLAN_CURRENT` to `var PLAN_LAST`)
-  2. Copy `plans/next.js` → `plans/current.js` (change `var PLAN_NEXT` to `var PLAN_CURRENT`)
+  1. Read `plans/current.js` and write its full content into `plans/last.js` (replacing the entire file)
+  2. Read `plans/next.js` and write its full content into `plans/current.js` (replacing the entire file)
   3. Generate the new plan as `plans/next.js`
+  Each file always uses its own variable name (`var PLAN_LAST`, `var PLAN_CURRENT`, `var PLAN_NEXT`), so after writing the data, update the variable name on line 1 to match the target file.
 - If `weekOf` is **today or later**, `next.js` is still upcoming — just regenerate it in place if asked.
 
 ### Plan File Format

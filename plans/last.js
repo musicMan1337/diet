@@ -1,1 +1,5 @@
-var PLAN_LAST = null;
+var PLAN_LAST = {
+  "weekOf": "2026-02-22",
+  "days": [],
+  "groceryTrips": []
+};

@@ -441,9 +441,9 @@
     const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const weeks = [];
-    if (PLAN_LAST) weeks.push({ key: 'last', label: 'Last', plan: PLAN_LAST });
-    if (PLAN_CURRENT) weeks.push({ key: 'current', label: 'Current', plan: PLAN_CURRENT });
-    if (PLAN_NEXT) weeks.push({ key: 'next', label: 'Next', plan: PLAN_NEXT });
+    if (PLAN_LAST && PLAN_LAST.days.length) weeks.push({ key: 'last', label: 'Last', plan: PLAN_LAST });
+    if (PLAN_CURRENT && PLAN_CURRENT.days.length) weeks.push({ key: 'current', label: 'Current', plan: PLAN_CURRENT });
+    if (PLAN_NEXT && PLAN_NEXT.days.length) weeks.push({ key: 'next', label: 'Next', plan: PLAN_NEXT });
 
     let activeWeek = weeks.find(w => w.key === 'current') || weeks[0] || null;
     let currentView = null;
