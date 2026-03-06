@@ -1,6 +1,6 @@
 # Diet Meal Planner
 
-Weekly meal planning app for a Protein Sparing Modified Fast (PSMF) diet. Plans are stored as JSON and rendered in a simple static web app.
+Weekly meal planning app for a Protein Sparing Modified Fast (PSMF) diet. Plans are stored as JS files and rendered in a static web app — no build step needed.
 
 ## Usage
 
@@ -12,7 +12,7 @@ Use Claude Code to generate a new weekly plan:
 > generate a meal plan for next week
 ```
 
-Plans are saved as `plans/yyyy-mm-dd.json` (dated by the Sunday of that week).
+Plans rotate through 3 slots: `last.js` → `current.js` → `next.js`. Each new plan pushes the previous ones back.
 
 ### View plans locally
 
@@ -20,26 +20,20 @@ Plans are saved as `plans/yyyy-mm-dd.json` (dated by the Sunday of that week).
 ./serve.sh
 ```
 
-Opens the viewer in your browser at `http://localhost:8079`. Select a plan from the dropdown, browse by day, and use the grocery list with checkable items.
+Opens the viewer at `http://localhost:8079/plans/`.
 
 ### Deploy to GitHub Pages
 
-After adding or updating a plan:
-
-```bash
-./deploy.sh
-git push
-```
-
-This rebuilds `index.html` with the current plan list and commits it.
+Just push to `main`. Configure GitHub Pages to serve from the `main` branch, `/plans` folder.
 
 ## Project Structure
 
 ```
-plans/          - Weekly meal plans (JSON)
-viewer.html     - App template
-index.html      - Generated app (built by serve.sh)
-serve.sh        - Build + local dev server
-deploy.sh       - Rebuild and commit for GitHub Pages
-CLAUDE.md       - Instructions for AI-assisted meal plan generation
+plans/
+  index.html    - Viewer app (loads plans via script tags)
+  current.js    - This week's plan
+  last.js       - Previous week
+  next.js       - Upcoming week
+serve.sh        - Local dev server
+CLAUDE.md       - AI meal plan generation instructions
 ```

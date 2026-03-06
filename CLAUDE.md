@@ -62,7 +62,12 @@ Help plan meals for each week, including generating grocery lists split across 2
 
 ## Repo Structure
 
-- `.diet/` - Diet reference files:
+- `plans/` - Meal plans and viewer app:
+  - `index.html` - Static viewer app (loads .js files via script tags)
+  - `current.js` - This week's plan
+  - `last.js` - Previous week's plan
+  - `next.js` - Upcoming week's plan
+- `.diet/` - Diet reference files (gitignored, proprietary):
   - `rules.md` - Diet instructions, supplements, daily allowances
   - `allowed-foods.md` - All allowed proteins, vegetables (including weights), beverages, sweeteners
   - `misc-products.md` - OTC meds, flavor enhancers, herbs & spices, Plan B triggers
@@ -85,12 +90,23 @@ Help plan meals for each week, including generating grocery lists split across 2
 8. When generating grocery lists, group by store section (produce, meat/seafood, dairy, pantry)
 9. Account for recipe ingredients if a recipe from `.diet/recipes/` is planned for the week
 
-Place generated plans as JSON into `plans/yyyy-mm-dd.json` (where date is the Sunday).
+### Plan Rotation
 
-### JSON Plan Schema
+Plans use a 3-slot rotation: `last.js`, `current.js`, `next.js`. All 3 files always exist.
 
-```json
-{
+**When asked to generate a meal plan**, check the `weekOf` date in `plans/next.js`:
+- If `weekOf` is **before today's date**, the plans are stale and need rotation:
+  1. Copy `plans/current.js` → `plans/last.js` (change `var PLAN_CURRENT` to `var PLAN_LAST`)
+  2. Copy `plans/next.js` → `plans/current.js` (change `var PLAN_NEXT` to `var PLAN_CURRENT`)
+  3. Generate the new plan as `plans/next.js`
+- If `weekOf` is **today or later**, `next.js` is still upcoming — just regenerate it in place if asked.
+
+### Plan File Format
+
+Plan files are `.js` files that assign a JSON object to a global variable. The variable name must match the slot: `PLAN_LAST`, `PLAN_CURRENT`, or `PLAN_NEXT`.
+
+```js
+var PLAN_NEXT = {
   "weekOf": "yyyy-mm-dd",
   "days": [
     {
@@ -122,11 +138,13 @@ Place generated plans as JSON into `plans/yyyy-mm-dd.json` (where date is the Su
       ]
     }
   ]
-}
+};
 ```
 
 Vegetable entries use: `{ "item": "name", "servings": 1, "cooking": "roasted", "contents": "optional details" }`
 
 ### Viewer App
 
-Run `./serve.sh` to view plans in a browser. The script generates `index.html` from `viewer.html` (template) and starts a local server.
+- `./serve.sh` - Starts a local server to view plans
+- GitHub Pages serves from `main` branch, `plans/` directory
+- No build step needed — everything is static

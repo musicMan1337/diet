@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Planner</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --card: #fff;
+      --text: #1a1a1a;
+      --muted: #777;
+      --border: #e5e5e5;
+      --accent: #2d6a4f;
+      --accent-light: #d8f3dc;
+      --accent-dark: #1b4332;
+      --radius: 10px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--accent-dark);
+      color: white;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Week switcher */
+    .week-nav {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .week-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: white;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .week-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .week-btn.active {
+      background: rgba(255, 255, 255, 0.35);
+      font-weight: 600;
+    }
+
+    .week-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: var(--accent);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      padding: 0.6rem 1rem;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      text-align: center;
+    }
+
+    .tab:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .tab.active {
+      color: white;
+      border-bottom-color: white;
+    }
+
+    .tab .day-name {
+      display: block;
+      font-size: 0.7rem;
+      opacity: 0.7;
+    }
+
+    .tab .day-num {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .tab-grocery {
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .tab-grocery svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    /* Meal cards */
+    .meal-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      margin-bottom: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .meal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.9rem;
+      background: var(--accent-light);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: capitalize;
+    }
+
+    .meal-oz {
+      background: var(--accent);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 20px;
+    }
+
+    .meal-body {
+      padding: 0.75rem 0.9rem;
+    }
+
+    .meal-section {
+      margin-bottom: 0.5rem;
+    }
+
+    .meal-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .meal-section-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .protein-item,
+    .veg-item {
+      font-size: 0.9rem;
+      padding: 0.15rem 0;
+    }
+
+    .protein-item .oz {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .veg-item .servings {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .veg-item .cooking {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    .meal-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 0.3rem;
+    }
+
+    .yolk-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      margin-left: 0.4rem;
+    }
+
+    /* Grocery view */
+    .grocery-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    @media (min-width: 800px) {
+      main.grocery-view {
+        max-width: 1100px;
+      }
+
+      .grocery-grid {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .grocery-trip {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .grocery-trip {
+      background: var(--card);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .trip-header {
+      padding: 0.75rem 0.9rem;
+      background: var(--accent-dark);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .trip-header h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .trip-header span {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    .grocery-section {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .grocery-section:last-child {
+      border-bottom: none;
+    }
+
+    .grocery-section-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+      padding: 0.6rem 0.9rem 0.25rem;
+    }
+
+    .grocery-item {
+      display: flex;
+      align-items: center;
+      padding: 0.45rem 0.9rem;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .grocery-item:hover {
+      background: var(--bg);
+    }
+
+    .grocery-item.checked {
+      opacity: 0.45;
+    }
+
+    .grocery-item.checked .gi-name {
+      text-decoration: line-through;
+    }
+
+    .grocery-check {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 5px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .grocery-item.checked .grocery-check {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .grocery-check svg {
+      width: 12px;
+      height: 12px;
+      fill: white;
+      display: none;
+    }
+
+    .grocery-item.checked .grocery-check svg {
+      display: block;
+    }
+
+    .gi-name {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .gi-qty {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .gi-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .clear-checks {
+      display: inline-block;
+      margin: 0.75rem 0.9rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      cursor: pointer;
+      border: none;
+      background: none;
+      text-decoration: underline;
+    }
+
+    .state-msg {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 500px) {
+      main {
+        padding: 0.75rem;
+      }
+    }
+
+    @media print {
+
+      header,
+      .tabs {
+        display: none;
+      }
+
+      .meal-card,
+      .grocery-trip {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+
+      body {
+        background: white;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Meal Planner</h1>
+    <div class="week-nav" id="week-nav"></div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+
+  <main id="main">
+    <div class="state-msg">Loading...</div>
+  </main>
+
+  <script>
+    var PLAN_LAST = null;
+    var PLAN_CURRENT = null;
+    var PLAN_NEXT = null;
+  </script>
+  <script src="last.js"></script>
+  <script src="current.js"></script>
+  <script src="next.js"></script>
+  <script>
+    const $ = s => document.querySelector(s);
+    const MEAL_ORDER = ['breakfast', 'lunch', 'snack', 'dinner'];
+    const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const weeks = [];
+    if (PLAN_LAST) weeks.push({ key: 'last', label: 'Last', plan: PLAN_LAST });
+    if (PLAN_CURRENT) weeks.push({ key: 'current', label: 'Current', plan: PLAN_CURRENT });
+    if (PLAN_NEXT) weeks.push({ key: 'next', label: 'Next', plan: PLAN_NEXT });
+
+    let activeWeek = weeks.find(w => w.key === 'current') || weeks[0] || null;
+    let currentView = null;
+
+    function formatDate(s) {
+      const d = new Date(s + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function dayName(s) { return DAY_NAMES[new Date(s + 'T12:00:00').getDay()]; }
+
+    function weekLabel(plan) {
+      const d = new Date(plan.weekOf + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function renderWeekNav() {
+      const nav = $('#week-nav');
+      nav.innerHTML = '';
+      weeks.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'week-btn' + (w === activeWeek ? ' active' : '');
+        btn.textContent = weekLabel(w.plan);
+        btn.onclick = () => { activeWeek = w; currentView = w.plan.days[0].date; render(); };
+        nav.appendChild(btn);
+      });
+    }
+
+    function renderTabs() {
+      const tabs = $('#tabs');
+      tabs.innerHTML = '';
+      activeWeek.plan.days.forEach(d => {
+        const t = document.createElement('div');
+        t.className = 'tab' + (currentView === d.date ? ' active' : '');
+        t.innerHTML = `<span class="day-name">${dayName(d.date)}</span><span class="day-num">${new Date(d.date + 'T12:00:00').getDate()}</span>`;
+        t.onclick = () => { currentView = d.date; render(); };
+        tabs.appendChild(t);
+      });
+      const gt = document.createElement('div');
+      gt.className = 'tab tab-grocery' + (currentView === 'grocery' ? ' active' : '');
+      gt.innerHTML = `<svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM7.16 14.26l.04-.12.94-1.7h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020.04 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/></svg> List`;
+      gt.onclick = () => { currentView = 'grocery'; render(); };
+      tabs.appendChild(gt);
+    }
+
+    function renderDay() {
+      const day = activeWeek.plan.days.find(d => d.date === currentView);
+      if (!day) return;
+      $('#main').classList.remove('grocery-view');
+      let html = '';
+
+      MEAL_ORDER.forEach(key => {
+        const meal = day.meals[key];
+        if (!meal) return;
+        const mealOz = meal.protein.reduce((s, p) => s + p.oz, 0);
+
+        html += `<div class="meal-card">
+      <div class="meal-header">
+        <span>${key}${meal.yolk ? '<span class="yolk-badge">yolk</span>' : ''}</span>
+        <span class="meal-oz">${mealOz} oz</span>
+      </div>
+      <div class="meal-body">`;
+
+        html += `<div class="meal-section"><div class="meal-section-label">Protein</div>`;
+        meal.protein.forEach(p => {
+          const label = p.qty ? `${p.qty} ${p.item}` : p.item;
+          html += `<div class="protein-item">${label} <span class="oz">(${p.oz} oz)</span></div>`;
+        });
+        html += `</div>`;
+
+        if (meal.vegetables && meal.vegetables.length) {
+          html += `<div class="meal-section"><div class="meal-section-label">Vegetables</div>`;
+          meal.vegetables.forEach(v => {
+            let desc = v.item;
+            if (v.contents) desc += ` (${v.contents})`;
+            const cook = v.cooking ? `<span class="cooking"> - ${v.cooking}</span>` : '';
+            html += `<div class="veg-item">${desc}${cook} <span class="servings">${v.servings} serving${v.servings > 1 ? 's' : ''}</span></div>`;
+          });
+          html += `</div>`;
+        }
+
+        if (meal.dressing) {
+          html += `<div class="meal-section"><div class="meal-section-label">Dressing</div><div style="font-size:0.9rem">${meal.dressing}</div></div>`;
+        }
+        if (meal.notes) {
+          html += `<div class="meal-note">${meal.notes}</div>`;
+        }
+        html += `</div></div>`;
+      });
+
+      $('#main').innerHTML = html;
+    }
+
+    function getCheckedKey() { return 'grocery-' + activeWeek.plan.weekOf; }
+    function getChecked() { try { return JSON.parse(localStorage.getItem(getCheckedKey()) || '{}'); } catch { return {}; } }
+    function setChecked(obj) { localStorage.setItem(getCheckedKey(), JSON.stringify(obj)); }
+
+    function renderGrocery() {
+      $('#main').classList.add('grocery-view');
+      const checked = getChecked();
+      const trips = activeWeek.plan.groceryTrips || [];
+
+      let html = '<div class="grocery-grid">';
+      trips.forEach((trip, ti) => {
+        html += `<div class="grocery-trip">
+      <div class="trip-header">
+        <h3>${trip.label} - ${formatDate(trip.date)}</h3>
+        <span>${trip.covers}</span>
+      </div>`;
+        trip.sections.forEach((sec, si) => {
+          html += `<div class="grocery-section"><div class="grocery-section-name">${sec.name}</div>`;
+          sec.items.forEach((item, ii) => {
+            const key = `${ti}-${si}-${ii}`;
+            const isChecked = checked[key] ? ' checked' : '';
+            html += `<div class="grocery-item${isChecked}" data-key="${key}" onclick="toggleCheck(this)">
+          <div class="grocery-check"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+          <span class="gi-name">${item.item}</span>
+          <span class="gi-qty">${item.qty}</span>
+          ${item.note ? `<span class="gi-note">${item.note}</span>` : ''}
+        </div>`;
+          });
+          html += `</div>`;
+        });
+        html += `<button class="clear-checks" onclick="clearTrip(${ti})">Clear all checks</button></div>`;
+      });
+      html += '</div>';
+      $('#main').innerHTML = html;
+    }
+
+    window.toggleCheck = function (el) {
+      const key = el.dataset.key;
+      const checked = getChecked();
+      if (checked[key]) { delete checked[key]; el.classList.remove('checked'); }
+      else { checked[key] = true; el.classList.add('checked'); }
+      setChecked(checked);
+    };
+
+    window.clearTrip = function (ti) {
+      const checked = getChecked();
+      Object.keys(checked).forEach(k => { if (k.startsWith(ti + '-')) delete checked[k]; });
+      setChecked(checked);
+      renderGrocery();
+    };
+
+    function render() {
+      renderWeekNav();
+      renderTabs();
+      if (currentView === 'grocery') renderGrocery();
+      else renderDay();
+    }
+
+    if (activeWeek) {
+      currentView = activeWeek.plan.days[0].date;
+      render();
+    } else {
+      $('#main').innerHTML = '<div class="state-msg">No plans found.</div>';
+    }
+  </script>
+</body>
+
+</html>
