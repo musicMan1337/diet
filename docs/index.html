@@ -595,8 +595,15 @@
       else renderDay();
     }
 
+    function todayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
     if (activeWeek) {
-      currentView = activeWeek.plan.days[0].date;
+      const today = todayStr();
+      const todayMatch = activeWeek.plan.days.find(d => d.date === today);
+      currentView = todayMatch ? todayMatch.date : activeWeek.plan.days[0].date;
       render();
     } else {
       $('#main').innerHTML = '<div class="state-msg">No plans found.</div>';
